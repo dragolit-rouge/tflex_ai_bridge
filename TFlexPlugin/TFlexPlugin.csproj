@@ -1,18 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Переключаем проект на универсальный .NET Framework 4.8 -->
     <TargetFramework>net48</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Подключаем API T-FLEX, который у вас точно есть -->
     <Reference Include="TFlexAPI">
       <HintPath>C:\Program Files\T-FLEX CAD Учебная Версия 18\Program\TFlexAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- АВТОМАТИЗАЦИЯ СБОРКИ ОДНОЙ КНОПКОЙ -->
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <!-- Принудительно закрываем T-FLEX, чтобы снять блокировку с файла .dll -->
+    <Exec Command="taskkill /f /im TFlexCAD* /fi &quot;STATUS eq RUNNING&quot;" ContinueOnError="true" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <!-- Сама копирует файл в корень -->
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="C:\tflexmacros\" ContinueOnError="false" />
+  </Target>
 
 </Project>

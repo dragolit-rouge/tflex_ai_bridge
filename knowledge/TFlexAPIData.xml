@@ -1,0 +1,429 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TFlexAPIData</name>
+    </assembly>
+    <members>
+        <member name="T:TFlex.Model.Data.Filters.ComparisonOperator">
+            <summary>Оператор сравнения</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.Equal">
+            <summary>Возвращает оператор "="</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.NotEqual">
+            <summary>Возвращает оператор "!="</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsOneOf">
+            <summary>Возвращает оператор "Входит в список"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsNotOneOf">
+            <summary>Возвращает оператор "Не входит в список"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.GreaterThan">
+            <summary>Возвращает оператор ">"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.LessThan">
+            <summary>Возвращает оператор "&lt;"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.GreaterThanOrEqual">
+            <summary>Возвращает оператор ">="</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.LessThanOrEqual">
+            <summary>Возвращает оператор "&lt;="</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsNull">
+            <summary>Возвращает оператор "Не содержит данных"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsNotNull">
+            <summary>Возвращает оператор "Содержит какие-либо данные"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.ContainsSubstring">
+            <summary>Возвращает оператор "Содержит"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.NotContainSubstring">
+            <summary>Возвращает оператор "Не содержит"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.StartsWithSubstring">
+            <summary>Возвращает оператор "Начинается с"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.EndsWithSubstring">
+            <summary>Возвращает оператор "Заканчивается на"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsEmptyString">
+            <summary>Возвращает оператор "Не содержит текст"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.IsNotEmptyString">
+            <summary>Возвращает оператор "Содержит текст"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.MatchMask">
+            <summary>Возвращает оператор "Соответствует маске"</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperator.NotMatchMask">
+            <summary>Возвращает оператор "Не соответствует маске"</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.GetOperator(TFlex.Model.Data.Filters.ComparisonOperatorType)">
+            <summary>Возвращает оператор сравнения по его типу</summary>
+            <param name="type">Тип оператора сравнения</param>
+            <returns>Оператор сравнения</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.GetAllOperators">
+            <summary>Возвращает список всех операторов сравнения</summary>
+            <returns>Список операторов сравнения</returns>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.ComparisonOperator.Type">
+            <summary>Возвращает тип оператора</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.Compare(System.Object,System.Object)">
+            <summary>Возвращает значение, указывающее, выполняется ли условие оператора сравнения для указанных операндов</summary>
+            <param name="firstOperand">Первый операнд</param>
+            <param name="secondOperand">Второй операнд</param>
+            <returns>Значение true, если условие оператора выполняется для указанных операндов; в противном случае - значение false</returns>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.ComparisonOperator.SupportsSecondOperand">
+            <summary>Возвращает значение, указывающее, поддерживается ли оператором сравнения второй операнд</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.ComparisonOperator.RequireValueList">
+            <summary>Возвращает значение, указывающее, должен ли быть операнд списком значений</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.GetHashCode">
+            <summary>Возвращает хэш-код оператора сравнения</summary>
+            <returns>Хэш-код в виде 32-битового целого числа со знаком</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.Equals(System.Object)">
+            <summary>Возвращает значение, указывающее, равен ли заданный объект текущему</summary>
+            <param name="obj">Объект для сравнения</param>
+            <returns>Значение true, если объекты равны; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.op_Equality(TFlex.Model.Data.Filters.ComparisonOperator,TFlex.Model.Data.Filters.ComparisonOperator)">
+            <summary>Определяет, равны ли указанные операции</summary>
+            <param name="x">Первая операция для сравнения</param>
+            <param name="y">Вторая операция для сравнения</param>
+            <returns>Значение true, если операции равны; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.ComparisonOperator.op_Inequality(TFlex.Model.Data.Filters.ComparisonOperator,TFlex.Model.Data.Filters.ComparisonOperator)">
+            <summary>Определяет, различаются ли указанные операции</summary>
+            <param name="x">Первая операция для сравнения</param>
+            <param name="y">Вторая операция для сравнения</param>
+            <returns>Значение true, если операции различаются; в противном случае - значение false</returns>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.Filter">
+            <summary>Фильтр</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.#ctor">
+            <summary>Создает новый экземпляр фильтра</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Filter.Terms">
+            <summary>Возвращает корневую группу условий фильтра</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.Validate">
+            <summary>Проверяет фильтр на допустимость</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.IsValid">
+            <summary>Возвращает значение, указывающее, является ли фильтр допустимым</summary>
+            <returns>Значение true, если фильтр является допустимым; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.Match(System.Object)">
+            <summary>Возвращает значение, указывающее, соответствует ли указанный объект условиям фильтра</summary>
+            <param name="obj">Объект для проверки</param>
+            <returns>Значение true, если объект соответствует условиям фильтра; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.ToString">
+            <summary>
+            Возвращает строковое представление фильтра
+            </summary>
+            <returns>Строковое представление фильтра</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.Parse(System.String,TFlex.Model.Data.Filters.Term)">
+            <summary>Перобразовывает заданное строковое представление фильтра в эквивалентный ему объект фильтра</summary>
+            <param name="str">Строковое представление фильтра</param>
+            <param name="termTemplate">Шаблонный параметр</param>
+            <returns>Фильтр, эквивалентный указанному строковому представлению</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Filter.TryParse(System.String,TFlex.Model.Data.Filters.Term,TFlex.Model.Data.Filters.Filter@)">
+            <summary>Перобразовывает заданное строковое представление фильтра в эквивалентный ему объект фильтра</summary>
+            <param name="str">Строковое представление фильтра</param>
+            <param name="termTemplate">Шаблонный параметр</param>
+            <param name="filter">Фильтр, эквивалентный указанному строковому представлению</param>
+            <returns>Значение true, если объект фильтра успешно получен; в противном случае - значение false</returns>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.LogicalOperator">
+            <summary>Логический оператор для соединения элементов в группе условий</summary>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.Term">
+            <summary>Условие фильтра</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Term.ParameterName">
+            <summary>Возвращает имя параметра условия</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Term.ParameterDescription">
+            <summary>Возвращает описание параметра условия</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Term.Operator">
+            <summary>Возвращает или задает оператор сравнения</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Term.Value">
+            <summary>Возвращает или задает значение для сравнения</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.Term.AsTerm">
+            <summary>Приводит текущий объект к типу <see cref="T:TFlex.Model.Data.Filters.Term"/> </summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Term.Clear">
+            <summary>Очищает условие</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.Term.ToString">
+            <summary>Возвращает строковое представление условия</summary>
+            <returns>Строковое представление условия</returns>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.TermGroup">
+            <summary>
+            Группа условий фильтра
+            </summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.#ctor">
+            <summary>Создает новую группу условий</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.AddGroup(TFlex.Model.Data.Filters.LogicalOperator)">
+            <summary>Добавляет дочернюю группу условий в текущую группу</summary>
+            <param name="logicalOperator">Логический оператор</param>
+            <returns>Добавленная группа условий</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.RemoveEmptyGroups(System.Boolean)">
+            <summary>Удаляет из текущей группы элементы, которые являются пустыми группами</summary>
+            <param name="recursive">Значение true, если требуется удалять элементы в дочерних группах; в противном случае - значение false</param>
+            <returns>Список групп условий, удалённых в результате операции</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.RemoveErrorItems(System.Boolean)">
+            <summary>Удаляет из текущей группы элементы, которые находятся в ошибочном состоянии</summary>
+            <param name="recursive">Значение true, если требуется удалять элементы в дочерних группах; в противном случае - значение false</param>
+            <returns>Список элементов группы, удаленных в результате операции</returns>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroup.AsGroup">
+            <summary>Приводит текущий объект к типу <see cref="T:TFlex.Model.Data.Filters.TermGroup"/></summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Match(System.Object)">
+            <summary>Возвращает значение, указывающее, соответствует ли указанный объект условиям группы</summary>
+            <param name="obj">Объект для проверки</param>
+            <returns>Значение true, если объект соответствует условиям группы; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.ToString">
+            <summary>Возвращает строковое представление группы условий</summary>
+            <returns>Строковое представление группы условий</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.GetText">
+            <summary>Возвращает текстовое представление группы условий</summary>
+            <returns>Текстовое представление группы условий</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.IndexOf(TFlex.Model.Data.Filters.TermGroupItem)">
+            <summary>Возвращает индекс указанного элемента в текущей группе условий</summary>
+            <param name="item">Элемент группы условий</param>
+            <returns>Индекс элемента в группе</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Insert(System.Int32,TFlex.Model.Data.Filters.TermGroupItem)">
+            <summary>Добавляет в текущую группу условий указанный элемент по заданному индексу</summary>
+            <param name="index">Индекс, по которому следует вставить элемент</param>
+            <param name="item">Элемент, добавляемый в группу условий</param>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.RemoveAt(System.Int32)">
+            <summary>Удаляет из текущей группы условий элемент с указанным индексом</summary>
+            <param name="index">Индекс элемента в группе</param>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroup.Item(System.Int32)">
+            <summary>Возвращает элемент, находящийся в группе условий по указанному индексу</summary>
+            <param name="index">Индекс элемента в группе</param>
+            <returns>Элемент, находящийся в группе условий по указанному индексу</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Add(TFlex.Model.Data.Filters.TermGroupItem)">
+            <summary>Добавляет указанный элемент в текущую группу условий</summary>
+            <param name="item">Элемент для добавления</param>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Clear">
+            <summary>Очищает текущую группу условий</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Contains(TFlex.Model.Data.Filters.TermGroupItem)">
+            <summary>Возвращает значение, указывающее, содержится ли заданный элемент в группе условий</summary>
+            <param name="item">Элемент для проверки</param>
+            <returns>Значение true, если элемент содержится в группе условий; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.CopyTo(TFlex.Model.Data.Filters.TermGroupItem[],System.Int32)">
+            <summary>Копирует элементы группы условий в заданный массив элементов, начиная с указанного индекса</summary>
+            <param name="array">Массив элементов</param>
+            <param name="arrayIndex">Индекс в массиве элементов</param>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroup.Count">
+            <summary>Возвращает количество элементов в группе условий</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroup.IsReadOnly">
+            <summary>Возвращает значение, указывающее, является ли группа условий доступной только для чтения </summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Remove(TFlex.Model.Data.Filters.TermGroupItem)">
+            <summary>Удаляет указанный элемент из текущей группы условий</summary>
+            <param name="item">Элемент для удаления</param>
+            <returns>Значение true, если элемент успешно удален из группы; в противном случае - значение false</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.GetEnumerator">
+            <summary>Возвращает перечислитель элементов в группе условий</summary>
+            <returns>Перечислитель элементов в группе условий</returns>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroup.Copy">
+            <summary>Копирует текущую группу условий </summary>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.TermGroupItem">
+            <summary>
+            Элемент группы условий
+            </summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.AsGroup">
+            <summary>Преобразует текущий элемент к типу <see cref="T:TFlex.Model.Data.Filters.TermGroup"/> (если он является группой условий)</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.IsGroup">
+            <summary>Возвращает значение, указывающее, является ли текущий элемент группой условий</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.AsTerm">
+            <summary>Преобразует текущий элемент к типу <see cref="T:TFlex.Model.Data.Filters.Term"/> (если он является условием)</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.IsTerm">
+            <summary>Возвращает значение, указывающее, является ли текущий элемент условием</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.LogicalOperator">
+            <summary>
+            Логический оператор, которым текущий элемент соединяется с предыдущим элементом в группе условий
+            </summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroupItem.Match(System.Object)">
+            <summary>Возвращает значение, указывающее, соответствует ли указанный объект условиям текущего элемента</summary>
+            <param name="obj">Объект для проверки</param>
+            <returns>Значение true, если объект соответствует условиям текущего элемента; в противном случае - значение false</returns>
+        </member>
+        <member name="P:TFlex.Model.Data.Filters.TermGroupItem.IsError">
+            <summary>Возвращает значение, указывающее, находится ли элемент в ошибочном состоянии</summary>
+        </member>
+        <member name="M:TFlex.Model.Data.Filters.TermGroupItem.Copy">
+            <summary>Создает копию текущего элемента в указанной группе условий</summary>
+            <returns>Новый элемент группы условий</returns>
+        </member>
+        <member name="T:TFlex.Model.Data.Filters.ComparisonOperatorType">
+            <summary>Тип оператора сравнения</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.Equal">
+            <summary>=</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.NotEqual">
+            <summary>!=</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsOneOf">
+            <summary>Входит в список</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsNotOneOf">
+            <summary>Не входит в список</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.GreaterThan">
+            <summary>&gt;</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.LessThan">
+            <summary>&lt;</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.GreaterThanOrEqual">
+            <summary>&gt;=</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.LessThanOrEqual">
+            <summary>&lt;=</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsNull">
+            <summary>Не содержит данных</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsNotNull">
+            <summary>Содержит какие-либо данные</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.ContainsSubstring">
+            <summary>Содержит</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.NotContainSubstring">
+            <summary>Не содержит</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.StartsWithSubstring">
+            <summary>Начинается с</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.EndsWithSubstring">
+            <summary>Заканчивается на</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsEmptyString">
+            <summary>Не содержит текст</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.IsNotEmptyString">
+            <summary>Содержит текст</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.MatchMask">
+            <summary>Соответствует маске</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.Filters.ComparisonOperatorType.NotMatchMask">
+            <summary>Не соответствует маске</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.GenerationError.MessageType.Error">
+            <summary>Ошибка</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.GenerationError.MessageType.FileError">
+            <summary>Ошибка при работе с файлом</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.GenerationError.MessageType.Warning">
+            <summary>Предупреждение</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.GenerationError.MessageType.Information">
+            <summary>Информационное сообщение</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.CompositeParameterDataGenerator.ElementType.Modulo">
+            <summary>integer remainder</summary>
+        </member>
+        <member name="T:TFlex.Model.Data.ProductStructure.ReportContentType">
+            <summary>Тип создаваемого отчета</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportContentType.AllElements">
+            <summary>Все элементы структуры изделия</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportContentType.SelectedElements">
+            <summary>Только выбранные элементы</summary>
+        </member>
+        <member name="T:TFlex.Model.Data.ProductStructure.ReportHierarchyType">
+            <summary>Способ обработки иерархических связей между элементами структуры изделия при создании отчета</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportHierarchyType.ElementsAndAllHierarchy">
+            <summary>Элементы и все уровни иерархии</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportHierarchyType.NoHierarchy">
+            <summary>Только элементы верхнего уровня</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportHierarchyType.ElementsAndFirstLevel">
+            <summary>Элементы и первый уровень иерархии</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportHierarchyType.FirstLevelOnly">
+            <summary>Только первый уровень иерархии</summary>
+        </member>
+        <member name="F:TFlex.Model.Data.ProductStructure.ReportHierarchyType.AllHierarchyOnly">
+            <summary>Все уровни иерархии</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.ID">
+            <summary>Идентификатор</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.AssemblyName">
+            <summary>Путь к файлу библиотеки генератора</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.Name">
+            <summary>Имя отчета</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.TemplatePath">
+            <summary>Путь к файлу прототипа отчета</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.ReportResultPath">
+            <summary>Относительный путь генерируемого файла отчета</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.GroupingID">
+            <summary>Идентификатор используемой группировки.</summary>
+            <remarks>Если не задан, то используется группировка по умолчанию.</remarks>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.ContentType">
+            <summary>Тип создаваемого отчета</summary>
+        </member>
+        <member name="P:TFlex.Model.Data.ProductStructure.ReportGeneratorWrapper.HierarchyType">
+            <summary>Тип иерархии создаваемого отчета</summary>
+        </member>
+    </members>
+</doc>
