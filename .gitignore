@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+error.txt
+server_error.txt
+error_log.txt
+test_send.py

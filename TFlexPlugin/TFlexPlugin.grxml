@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionConfiguration>
+  <Plugin>
+    <!-- Имя класса из вашего Class1.cs (замените, если меняли) -->
+    <Name>TFlexPlugin.MyExtension</Name> 
+    <!-- Пишем имя нашей скомпилированной библиотеки -->
+    <Assembly>TFlexPlugin.dll</Assembly>
+    <LoadType>Startup</LoadType>
+  </Plugin>
+</ExtensionConfiguration>
