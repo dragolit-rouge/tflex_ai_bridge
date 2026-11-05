@@ -75,7 +75,7 @@ def ask_gemini_with_embedded_xml(user_prompt):
     try:
         # Запрос к Gemini через официальный современный SDK
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.8-flash',
             contents=full_user_content,
             config={
                 'system_instruction': system_instruction,
