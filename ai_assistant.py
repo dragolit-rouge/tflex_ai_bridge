@@ -1,10 +1,10 @@
-import requests
-import json
 import os
 import xml.etree.ElementTree as ET
 import re
+import requests
+from google import genai
 
-API_URL = "http://localhost:11434/api/chat"
+client = genai.Client(api_key="AQ.Ab8RN6Ln36HdUcjCZ-iRjrq3KkkWEoNoxdf_KJurXGqEqrIJ7w")
 
 def extract_knowledge_from_xml(user_query):
     """Глубокий парсер XML-библиотеки T-FLEX, который вырезает только нужные классы"""
@@ -42,10 +42,10 @@ def extract_knowledge_from_xml(user_query):
         
     return extracted_hints
 
-def ask_qwen_with_embedded_xml(user_prompt):
+def ask_gemini_with_embedded_xml(user_prompt):
     xml_context = extract_knowledge_from_xml(user_prompt)
     
-    print("🤖 Локальный Qwen штудирует вырезки из TFlexAPI.xml и пишет макрос...")
+    print("🤖 Gemini анализирует вырезки из TFlexAPI.xml и пишет макрос...")
     
     system_instruction = (
         "Ты — узкоспециализированный генератор C# макросов для САПР T-FLEX CAD 18 (net48).\n"
@@ -65,22 +65,27 @@ def ask_qwen_with_embedded_xml(user_prompt):
         "doc.Redraw();"
     )
 
-    
-    data = {
-        "model": "qwen2.5-coder:3b",
-        "messages": [
-            {"role": "system", "content": system_instruction},
-            {"role": "user", "content": f"Используя XML-справку выше, напиши чистый построчный код C# для задачи: {user_prompt}"}
-        ],
-        "options": {"temperature": 0.0},
-        "stream": False
-    }
+    # Формируем полный промпт, включая динамически вырезанный контекст из XML
+    full_user_content = (
+        f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
+        f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
+        "Используя XML-справку выше, напиши чистый построчный код C#."
+    )
 
     try:
-        response = requests.post(API_URL, json=data, timeout=90)
-        csharp_code = response.json()['message']['content'].strip()
+        # Запрос к Gemini через официальный современный SDK
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=full_user_content,
+            config={
+                'system_instruction': system_instruction,
+                'temperature': 0.0 # Жестко детерминированный ответ для написания кода
+            }
+        )
         
-        # 1. Стираем маркдаун
+        csharp_code = response.text.strip()
+        
+        # 1. Стираем маркдаун (если модель обернула код в ```csharp ... ```)
         if "```" in csharp_code:
             lines = csharp_code.split("\n")
             cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
@@ -120,7 +125,7 @@ def ask_qwen_with_embedded_xml(user_prompt):
             
         return "\n".join(filtered_lines).strip()
     except Exception as e:
-        print("❌ Ошибка связи с Ollama:", e)
+        print("❌ Ошибка связи с Gemini API:", e)
         return None
 
 def send_to_tflex(csharp_code):
@@ -137,13 +142,13 @@ def send_to_tflex(csharp_code):
         print("❌ Ошибка сети моста:", e)
 
 if __name__ == "__main__":
-    print("=== ЛОКАЛЬНЫЙ ИИ-ИНЖЕНЕР С ИНТЕГРАЦИЕЙ XML-БИБЛИОТЕК ===")
+    print("=== ОБЛАЧНЫЙ ИИ-ИНЖЕНЕР (GEMINI) С ИНТЕГРАЦИЕЙ XML-БИБЛИОТЕК ===")
     print("Программа на лету вырезает справочные данные из TFlexAPI.xml под каждый ваш запрос.\n")
     
     while True:
         prompt = input("👤 Запрос: ")
         if prompt.lower() == 'exit': break
-        code = ask_qwen_with_embedded_xml(prompt)
+        code = ask_gemini_with_embedded_xml(prompt)
         if code:
             print("\n💻 Сгенерированный по XML код C#:")
             print(code)
