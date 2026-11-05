@@ -4,6 +4,7 @@ import re
 import requests
 from google import genai
 
+client = genai.Client()
 
 def extract_knowledge_from_xml(user_query):
     """Глубокий парсер XML-библиотеки T-FLEX, который вырезает только нужные классы"""
