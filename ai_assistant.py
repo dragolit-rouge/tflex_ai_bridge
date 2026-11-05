@@ -4,7 +4,7 @@ import re
 import requests
 from google import genai
 
-os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6IrsHeKGDoH1SCHKaGNowcFp42x1GxVfzuFyJByLuuM2g"
+
 client = genai.Client()
 
 def extract_knowledge_from_xml(user_query):
