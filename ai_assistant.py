@@ -4,6 +4,7 @@ import re
 import requests
 from google import genai
 
+os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6IrsHeKGDoH1SCHKaGNowcFp42x1GxVfzuFyJByLuuM2g"
 client = genai.Client()
 
 def extract_knowledge_from_xml(user_query):
@@ -42,6 +43,8 @@ def extract_knowledge_from_xml(user_query):
         
     return extracted_hints
 
+import time
+
 def ask_gemini_with_embedded_xml(user_prompt):
     xml_context = extract_knowledge_from_xml(user_prompt)
     
@@ -65,68 +68,68 @@ def ask_gemini_with_embedded_xml(user_prompt):
         "doc.Redraw();"
     )
 
-    # Формируем полный промпт, включая динамически вырезанный контекст из XML
     full_user_content = (
         f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
         f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
         "Используя XML-справку выше, напиши чистый построчный код C#."
     )
 
-    try:
-        # Запрос к Gemini через официальный современный SDK
-        response = client.models.generate_content(
-            model='gemini-3.8-flash',
-            contents=full_user_content,
-            config={
-                'system_instruction': system_instruction,
-                'temperature': 0.0 # Жестко детерминированный ответ для написания кода
-            }
-        )
-        
-        csharp_code = response.text.strip()
-        
-        # 1. Стираем маркдаун (если модель обернула код в ```csharp ... ```)
-        if "```" in csharp_code:
-            lines = csharp_code.split("\n")
-            cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
-            csharp_code = "\n".join(cleaned_lines)
-        csharp_code = csharp_code.replace("`", "").strip()
+    # Пытаемся отправить запрос с авто-повтором при ошибке 503
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model='gemini-3.8-flash',
+                contents=full_user_content,
+                config={
+                    'system_instruction': system_instruction,
+                    'temperature': 0.0
+                }
+            )
+            csharp_code = response.text.strip()
+            break # Если успешно — выходим из цикла попыток
+        except Exception as e:
+            print(f"⚠️ Попытка {attempt + 1} не удалась (ошибка сервера). Повтор через 3 секунды...")
+            time.sleep(3)
+            if attempt == max_retries - 1:
+                print("❌ Ошибка связи с Gemini API: исчерпаны все попытки:", e)
+                return None
 
-        # 2. ЖЕСТКАЯ ХАКЕРСКАЯ КОРРЕКЦИЯ СИНТАКСИСА ПОД СТАРУЮ ВЕРСИЮ API 18 (net48)
-        csharp_code = csharp_code.replace("TFlex.Application.Window.PostCommand", "TFlex.Application.PostCommand")
-        csharp_code = csharp_code.replace("TFlex.Application.ActiveMainWindow.PostCommand", "TFlex.Application.PostCommand")
-        csharp_code = csharp_code.replace("TFlex.Application.ActiveWindow.PostCommand", "TFlex.Application.PostCommand")
+    # Дальнейшая очистка кода (остается без изменений)
+    if "```" in csharp_code:
+        lines = csharp_code.split("\n")
+        cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
+        csharp_code = "\n".join(cleaned_lines)
+    csharp_code = csharp_code.replace("`", "").strip()
+
+    csharp_code = csharp_code.replace("TFlex.Application.Window.PostCommand", "TFlex.Application.PostCommand")
+    csharp_code = csharp_code.replace("TFlex.Application.ActiveMainWindow.PostCommand", "TFlex.Application.PostCommand")
+    csharp_code = csharp_code.replace("TFlex.Application.ActiveWindow.PostCommand", "TFlex.Application.PostCommand")
+    csharp_code = csharp_code.replace("doc.ViewRedraw();", "doc.Redraw();")
+    csharp_code = csharp_code.replace("doc.Refresh();", "doc.Redraw();")
+    csharp_code = csharp_code.replace("doc.Model2D.Constraint", "TFlex.Model.Model2D.Constraint")
+    csharp_code = csharp_code.replace("doc.Model2D.Object2D", "doc")
+    csharp_code = csharp_code.replace("doc.Model2D", "doc")
+
+    filtered_lines = []
+    for line in csharp_code.split("\n"):
+        trimmed = line.strip()
+        if not trimmed:
+            continue
+        if (trimmed.startswith("using ") or 
+            trimmed.startswith("public ") or 
+            trimmed.startswith("private ") or 
+            trimmed.startswith("class ") or 
+            trimmed.startswith("namespace ") or 
+            trimmed == "{" or 
+            trimmed == "}"):
+            continue
+        if any(char.lower() in 'абвгдежзийклмнопрстуфхцчшщъыьэюя' for char in trimmed[:3]):
+            continue
+        filtered_lines.append(line)
         
-        csharp_code = csharp_code.replace("doc.ViewRedraw();", "doc.Redraw();")
-        csharp_code = csharp_code.replace("doc.Refresh();", "doc.Redraw();")
+    return "\n".join(filtered_lines).strip()
 
-        # ХАК ДЛЯ СТАРОГО API: Срезаем несуществующие прослойки Model2D и Object2D
-        csharp_code = csharp_code.replace("doc.Model2D.Constraint", "TFlex.Model.Model2D.Constraint")
-        csharp_code = csharp_code.replace("doc.Model2D.Object2D", "doc")
-        csharp_code = csharp_code.replace("doc.Model2D", "doc")
-
-        # 3. Фильтр структуры
-        filtered_lines = []
-        for line in csharp_code.split("\n"):
-            trimmed = line.strip()
-            if not trimmed:
-                continue
-            if (trimmed.startswith("using ") or 
-                trimmed.startswith("public ") or 
-                trimmed.startswith("private ") or 
-                trimmed.startswith("class ") or 
-                trimmed.startswith("namespace ") or 
-                trimmed == "{" or 
-                trimmed == "}"):
-                continue
-            if any(char.lower() in 'абвгдежзийклмнопрстуфхцчшщъыьэюя' for char in trimmed[:3]):
-                continue
-            filtered_lines.append(line)
-            
-        return "\n".join(filtered_lines).strip()
-    except Exception as e:
-        print("❌ Ошибка связи с Gemini API:", e)
-        return None
 
 def send_to_tflex(csharp_code):
     if not csharp_code: return
