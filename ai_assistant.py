@@ -42,12 +42,12 @@ def extract_knowledge_from_xml(user_query):
         
     return extracted_hints
 
-import time
+import json
 
 def ask_gemini_with_embedded_xml(user_prompt):
     xml_context = extract_knowledge_from_xml(user_prompt)
     
-    print("🤖 Gemini анализирует вырезки из TFlexAPI.xml и пишет макрос...")
+    print("🤖 Локальная Gemma анализирует вырезки из TFlexAPI.xml и пишет макрос...")
     
     system_instruction = (
         "Ты — узкоспециализированный генератор C# макросов для САПР T-FLEX CAD 18 (net48).\n"
@@ -68,33 +68,42 @@ def ask_gemini_with_embedded_xml(user_prompt):
     )
 
     full_user_content = (
+        f"СИСТЕМНЫЕ ИНСТРУКЦИИ:\n{system_instruction}\n\n"
         f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
         f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
         "Используя XML-справку выше, напиши чистый построчный код C#."
     )
 
-    # Пытаемся отправить запрос с авто-повтором при ошибке 503
+    # Параметры запроса к локальной Ollama
+    url = "http://localhost:11434/api/generate"
+    payload = {
+        "model": "gemma2",  # Укажите имя вашей локальной модели
+        "prompt": full_user_content,
+        "stream": False,
+        "options": {
+            "temperature": 0.0
+        }
+    }
+
     max_retries = 3
+    csharp_code = ""
     for attempt in range(max_retries):
         try:
-            response = client.models.generate_content(
-                model='gemini-3.8-flash',
-                contents=full_user_content,
-                config={
-                    'system_instruction': system_instruction,
-                    'temperature': 0.0
-                }
-            )
-            csharp_code = response.text.strip()
-            break # Если успешно — выходим из цикла попыток
+            response = requests.post(url, json=payload, timeout=60)
+            if response.status_code == 200:
+                res_json = response.json()
+                csharp_code = res_json.get("response", "").strip()
+                break
+            else:
+                print(f"⚠️ Ошибка сервера Ollama: {response.status_code}")
         except Exception as e:
-            print(f"⚠️ Попытка {attempt + 1} не удалась (ошибка сервера). Повтор через 3 секунды...")
+            print(f"⚠️ Попытка {attempt + 1} не удалась. Повтор через 3 секунды...")
             time.sleep(3)
             if attempt == max_retries - 1:
-                print("❌ Ошибка связи с Gemini API: исчерпаны все попытки:", e)
+                print("❌ Ошибка связи с локальной моделью Ollama:", e)
                 return None
 
-    # Дальнейшая очистка кода (остается без изменений)
+    # Очистка кода (остается без изменений)
     if "```" in csharp_code:
         lines = csharp_code.split("\n")
         cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
