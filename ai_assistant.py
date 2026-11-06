@@ -2,8 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 import re
 import requests
-from google import genai
-
+import time
 
 
 def extract_knowledge_from_xml(user_query):
@@ -89,7 +88,7 @@ def ask_gemini_with_embedded_xml(user_prompt):
     csharp_code = ""
     for attempt in range(max_retries):
         try:
-            response = requests.post(url, json=payload, timeout=60)
+            response = requests.post(url, json=payload, timeout=180)
             if response.status_code == 200:
                 res_json = response.json()
                 csharp_code = res_json.get("response", "").strip()
