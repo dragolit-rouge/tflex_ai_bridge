@@ -3,24 +3,24 @@ import xml.etree.ElementTree as ET
 import re
 import requests
 import time
+# Импортируем наш новый отдельный модуль памяти
+from tflex_memory import save_working_example, get_relevant_examples_context
 
 
 def extract_knowledge_from_xml(user_query):
-    """Глубокий парсер XML-библиотеки T-FLEX, который вырезает только нужные классы"""
+    """Глубокий парсер XML-библиотеки T-FLEX"""
     xml_path = r"C:\tflexmacros\knowledge\TFlexAPI.xml"
     extracted_hints = ""
     
     if not os.path.exists(xml_path):
         return "⚠️ Внимание: Файл TFlexAPI.xml не найден в папке knowledge!\n"
         
-    print(f"🔍 Сканирую XML-библиотеку знаний по запросу '{user_query}'...")
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
         
         search_terms = ["Cylinder", "Cone", "Sphere", "Variable", "Document", "View", "Redraw", "Line", "Circle", "Constraint"]
         matched_terms = [term for term in search_terms if term.lower() in user_query.lower()]
-        
         if not matched_terms:
             matched_terms = ["Document", "Model2D"]
 
@@ -33,50 +33,67 @@ def extract_knowledge_from_xml(user_query):
                 summary_text = summary_node.text.strip() if summary_node.text else ""
                 if summary_text and count < 15:
                     summary_clean = re.sub(r'\s+', ' ', summary_text)
-                    extracted_hints += f"Элемент API: {name}\nОписание из документации: {summary_clean}\n\n"
+                    extracted_hints += f"Элемент API: {name}\nОписание: {summary_clean}\n\n"
                     count += 1
-                    
     except Exception as e:
-        print("⚠️ Ошибка при чтении XML-документации:", e)
+        print("⚠️ Ошибка при чтении XML:", e)
         
     return extracted_hints
 
-import json
+
+def fix_missing_semicolons(csharp_code):
+    """Автоматически подставляет пропущенные точки с запятой"""
+    fixed_lines = []
+    for line in csharp_code.split("\n"):
+        stripped = line.strip()
+        if stripped and not stripped.endswith(";") and not stripped.endswith("{") and not stripped.startswith("//"):
+            fixed_lines.append(line + ";")
+        else:
+            fixed_lines.append(line)
+    return "\n".join(fixed_lines)
+
 
 def send_to_tflex(csharp_code):
+    """Отправляет код на локальный сервер моста T-FLEX CAD"""
     if not csharp_code: return "Ошибка: пустой код"
-    print("🚀 Отправка сгенерированного по XML макроса в T-FLEX CAD...")
+    print("🚀 Отправка сгенерированного макроса в T-FLEX CAD...")
     try:
         response = requests.post("http://localhost:8090/", data=csharp_code.encode('utf-8'), timeout=60)
         return response.text.strip()
     except Exception as e:
         return f"❌ Ошибка сети моста: {e}"
 
-def ask_gemini_with_embedded_xml(user_prompt, previous_code=="", error_feedback=""):
+
+def ask_gemini_with_embedded_xml(user_prompt, previous_code="", error_feedback=""):
     xml_context = extract_knowledge_from_xml(user_prompt)
+    # Достаем релевантные примеры из нашего нового модуля памяти
+    memory_context = get_relevant_examples_context(user_prompt)
+    
+    current_temperature = 0.0
     
     if error_feedback:
-        print("🔄 Gemma исправляет код на основе ошибки от T-FLEX...")
+        current_temperature = 0.4
+        print(f"🔄 Gemma исправляет ошибку (Температура: {current_temperature})...")
         full_user_content = (
-            f"ПРЕДЫДУЩИЙ ВАРИАНТ КОДА:\n{previous_code}\n\n"
-            f"ОШИБКА, КОТОРУЮ ВЕРНУЛ T-FLEX CAD:\n{error_feedback}\n\n"
-            f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
             f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
-            "Исправь ошибку и выдай исправленный чистый построчный код C# без пояснений."
+            f"ОШИБКА ОТ T-FLEX CAD:\n{error_feedback}\n\n"
+            f"ПРЕДЫДУЩИЙ ОШИБОЧНЫЙ КОД:\n{previous_code}\n\n"
+            "Напиши ИСПРАВЛЕННЫЙ вариант кода. Избегай ошибки выше! Каждая строка должна заканчиваться ';'."
         )
     else:
-        print("🤖 Локальная Gemma анализирует вырезки из TFlexAPI.xml и пишет макрос...")
+        print("🤖 Локальная Gemma анализирует эталоны памяти и XML-справку...")
         full_user_content = (
+            f"{memory_context}\n\n"
             f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
-            f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
-            "Используя XML-справку выше, напиши чистый построчный код C#."
+            f"НОВАЯ ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
+            "Используя эталоны из памяти и XML-справку, напиши чистый построчный код C#."
         )
     
     system_instruction = (
         "Ты — узкоспециализированный генератор C# макросов для САПР T-FLEX CAD 18 (net48).\n"
-        "Выдавай ТОЛЬКО исполняемые строки C# кода, которые вставятся внутрь метода Execute(Document doc).\n"
-        "КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать ключевые слова: using, class, namespace, public void, public static, или фигурные скобки.\n"
-        "Используй методы создания переменных (doc.CreateVariable) и геометрии через API T-FLEX (например, FreeNode, CircleConstruction, Circle)."
+        "Выдавай ТОЛЬКО исполняемые строки C# кода внутрь метода Execute(Document doc).\n"
+        "КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать: using, class, namespace, public void, public static, или фигурные скобки.\n"
+        "Каждая строка/инструкция кода ОБЯЗАТЕЛЬНО должна заканчиваться точкой с запятой (;)."
     )
 
     url = "http://localhost:11434/api/generate"
@@ -84,7 +101,7 @@ def ask_gemini_with_embedded_xml(user_prompt, previous_code=="", error_feedback=
         "model": "gemma2",
         "prompt": f"Системные инструкции:\n{system_instruction}\n\n{full_user_content}",
         "stream": False,
-        "options": {"temperature": 0.0}
+        "options": {"temperature": current_temperature}
     }
 
     try:
@@ -97,14 +114,13 @@ def ask_gemini_with_embedded_xml(user_prompt, previous_code=="", error_feedback=
         print("❌ Ошибка связи с Ollama:", e)
         return None
 
-    # Очистка кода от маркдауна и лишних символов
+    # Очистка
     if "```" in csharp_code:
         lines = csharp_code.split("\n")
         cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
         csharp_code = "\n".join(cleaned_lines)
     csharp_code = csharp_code.replace("`", "").strip()
 
-    # Фильтрация запрещенных строк
     filtered_lines = []
     for line in csharp_code.split("\n"):
         trimmed = line.strip()
@@ -113,10 +129,12 @@ def ask_gemini_with_embedded_xml(user_prompt, previous_code=="", error_feedback=
             continue
         filtered_lines.append(line)
         
-    return "\n".join(filtered_lines).strip()
+    final_code = "\n".join(filtered_lines).strip()
+    return fix_missing_semicolons(final_code)
+
 
 if __name__ == "__main__":
-    print("=== ОБЛАЧНЫЙ/ЛОКАЛЬНЫЙ ИИ-ИНЖЕНЕР С ОБРАТНОЙ СВЯЗЬЮ ===")
+    print("=== ИИ-ИНЖЕНЕР С МОДУЛЕМ НАКОПЛЕНИЯ ПАМЯТИ ===")
     
     while True:
         prompt = input("\n👤 Запрос: ")
@@ -124,11 +142,10 @@ if __name__ == "__main__":
         
         current_code = ""
         error_feedback = ""
-        max_fix_attempts = 3
+        max_fix_attempts = 4
         success = False
         
         for attempt in range(max_fix_attempts):
-            # Генерация кода (первый раз или с учетом ошибки)
             current_code = ask_gemini_with_embedded_xml(prompt, previous_code=current_code, error_feedback=error_feedback)
             
             if not current_code:
@@ -139,19 +156,20 @@ if __name__ == "__main__":
             print(current_code)
             print("-" * 40)
             
-            # Отправка в T-FLEX
             tflex_response = send_to_tflex(current_code)
             print(f"📥 Ответ от T-FLEX: {tflex_response}")
             
             if tflex_response == "ОК":
                 print("✅ Макрос успешно выполнен без ошибок!")
+                # Записываем победу в наш отдельный модуль памяти!
+                save_working_example(prompt, current_code)
                 success = True
                 break
             else:
-                print(f"⚠️ Обнаружена ошибка в T-FLEX. Передаем её обратно в Gemma для исправления...")
+                print(f"⚠️ Ошибка в T-FLEX. Передаем её обратно в Gemma...")
                 error_feedback = tflex_response
                 time.sleep(2)
                 
         if not success:
-            print("❌ Не удалось добиться успешного выполнения макроса после нескольких попыток.")
+            print("❌ Не удалось добиться успешного выполнения макроса за отведенные попытки.")
         print("=" * 40 + "\n")
