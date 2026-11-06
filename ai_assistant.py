@@ -43,125 +43,115 @@ def extract_knowledge_from_xml(user_query):
 
 import json
 
-def ask_gemini_with_embedded_xml(user_prompt):
+def send_to_tflex(csharp_code):
+    if not csharp_code: return "Ошибка: пустой код"
+    print("🚀 Отправка сгенерированного по XML макроса в T-FLEX CAD...")
+    try:
+        response = requests.post("http://localhost:8090/", data=csharp_code.encode('utf-8'), timeout=60)
+        return response.text.strip()
+    except Exception as e:
+        return f"❌ Ошибка сети моста: {e}"
+
+def ask_gemini_with_embedded_xml(user_prompt, previous_code=="", error_feedback=""):
     xml_context = extract_knowledge_from_xml(user_prompt)
     
-    print("🤖 Локальная Gemma анализирует вырезки из TFlexAPI.xml и пишет макрос...")
+    if error_feedback:
+        print("🔄 Gemma исправляет код на основе ошибки от T-FLEX...")
+        full_user_content = (
+            f"ПРЕДЫДУЩИЙ ВАРИАНТ КОДА:\n{previous_code}\n\n"
+            f"ОШИБКА, КОТОРУЮ ВЕРНУЛ T-FLEX CAD:\n{error_feedback}\n\n"
+            f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
+            f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
+            "Исправь ошибку и выдай исправленный чистый построчный код C# без пояснений."
+        )
+    else:
+        print("🤖 Локальная Gemma анализирует вырезки из TFlexAPI.xml и пишет макрос...")
+        full_user_content = (
+            f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
+            f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
+            "Используя XML-справку выше, напиши чистый построчный код C#."
+        )
     
     system_instruction = (
         "Ты — узкоспециализированный генератор C# макросов для САПР T-FLEX CAD 18 (net48).\n"
         "Выдавай ТОЛЬКО исполняемые строки C# кода, которые вставятся внутрь метода Execute(Document doc).\n"
         "КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать ключевые слова: using, class, namespace, public void, public static, или фигурные скобки.\n"
-        "ЗАПРЕЩЕНО использовать любые методы типа doc.Circle(), doc.TransformationGroup, Fragment.Circle — их НЕ СУЩЕСТВУЕТ!\n\n"
-        "ПРАВИЛА АВТОМАТИЗАЦИИ:\n"
-        "Если пользователь просит нарисовать круг, окружность, квадрат, цилиндр или деталь, ты должен сделать строго две вещи:\n"
-        "1. Создать управляющие переменные размеров чертежа (например, AI_Radius, AI_Height, AI_Width) через doc.CreateVariable.\n"
-        "2. Вывести красивое виндовое окно-уведомление через MessageBox.Show, сообщающее, что параметры геометрии успешно сгенерированы.\n\n"
-        "Пример идеального ответа:\n"
-        "doc.BeginChanges(\"ИИ_Геометрия\");\n"
-        "Variable v1 = doc.CreateVariable(\"AI_Size\");\n"
-        "if (v1 != null) v1.Expression = \"100\";\n"
-        "doc.EndChanges();\n"
-        "MessageBox.Show(\"Параметры успешно переданы в T-FLEX!\", \"ИИ Ассистент\");\n"
-        "doc.Redraw();"
+        "Используй методы создания переменных (doc.CreateVariable) и геометрии через API T-FLEX (например, FreeNode, CircleConstruction, Circle)."
     )
 
-    full_user_content = (
-        f"СИСТЕМНЫЕ ИНСТРУКЦИИ:\n{system_instruction}\n\n"
-        f"СПРАВКА ИЗ XML-БИБЛИОТЕКИ:\n{xml_context}\n\n"
-        f"ЗАДАЧА ПОЛЬЗОВАТЕЛЯ: {user_prompt}\n\n"
-        "Используя XML-справку выше, напиши чистый построчный код C#."
-    )
-
-    # Параметры запроса к локальной Ollama
     url = "http://localhost:11434/api/generate"
     payload = {
-        "model": "gemma2",  # Укажите имя вашей локальной модели
-        "prompt": full_user_content,
+        "model": "gemma2",
+        "prompt": f"Системные инструкции:\n{system_instruction}\n\n{full_user_content}",
         "stream": False,
-        "options": {
-            "temperature": 0.0
-        }
+        "options": {"temperature": 0.0}
     }
 
-    max_retries = 3
-    csharp_code = ""
-    for attempt in range(max_retries):
-        try:
-            response = requests.post(url, json=payload, timeout=180)
-            if response.status_code == 200:
-                res_json = response.json()
-                csharp_code = res_json.get("response", "").strip()
-                break
-            else:
-                print(f"⚠️ Ошибка сервера Ollama: {response.status_code}")
-        except Exception as e:
-            print(f"⚠️ Попытка {attempt + 1} не удалась. Повтор через 3 секунды...")
-            time.sleep(3)
-            if attempt == max_retries - 1:
-                print("❌ Ошибка связи с локальной моделью Ollama:", e)
-                return None
+    try:
+        response = requests.post(url, json=payload, timeout=180)
+        if response.status_code == 200:
+            csharp_code = response.json().get("response", "").strip()
+        else:
+            return None
+    except Exception as e:
+        print("❌ Ошибка связи с Ollama:", e)
+        return None
 
-    # Очистка кода (остается без изменений)
+    # Очистка кода от маркдауна и лишних символов
     if "```" in csharp_code:
         lines = csharp_code.split("\n")
         cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
         csharp_code = "\n".join(cleaned_lines)
     csharp_code = csharp_code.replace("`", "").strip()
 
-    csharp_code = csharp_code.replace("TFlex.Application.Window.PostCommand", "TFlex.Application.PostCommand")
-    csharp_code = csharp_code.replace("TFlex.Application.ActiveMainWindow.PostCommand", "TFlex.Application.PostCommand")
-    csharp_code = csharp_code.replace("TFlex.Application.ActiveWindow.PostCommand", "TFlex.Application.PostCommand")
-    csharp_code = csharp_code.replace("doc.ViewRedraw();", "doc.Redraw();")
-    csharp_code = csharp_code.replace("doc.Refresh();", "doc.Redraw();")
-    csharp_code = csharp_code.replace("doc.Model2D.Constraint", "TFlex.Model.Model2D.Constraint")
-    csharp_code = csharp_code.replace("doc.Model2D.Object2D", "doc")
-    csharp_code = csharp_code.replace("doc.Model2D", "doc")
-
+    # Фильтрация запрещенных строк
     filtered_lines = []
     for line in csharp_code.split("\n"):
         trimmed = line.strip()
-        if not trimmed:
-            continue
-        if (trimmed.startswith("using ") or 
-            trimmed.startswith("public ") or 
-            trimmed.startswith("private ") or 
-            trimmed.startswith("class ") or 
-            trimmed.startswith("namespace ") or 
-            trimmed == "{" or 
-            trimmed == "}"):
-            continue
-        if any(char.lower() in 'абвгдежзийклмнопрстуфхцчшщъыьэюя' for char in trimmed[:3]):
+        if not trimmed: continue
+        if any(trimmed.startswith(w) for w in ["using ", "public ", "private ", "class ", "namespace ", "{", "}"]):
             continue
         filtered_lines.append(line)
         
     return "\n".join(filtered_lines).strip()
 
-
-def send_to_tflex(csharp_code):
-    if not csharp_code: return
-    print("🚀 Отправка сгенерированного по XML макроса в T-FLEX CAD...")
-    try:
-        response = requests.post("http://localhost:8090/", data=csharp_code.encode('utf-8'), timeout=15)
-        status = response.text
-        if status == "ОК":
-            print("📥 Ответ от T-FLEX: Макрос успешно выполнен!")
-        else:
-            print(f"📥 Ответ от T-FLEX:\n{status}")
-    except Exception as e:
-        print("❌ Ошибка сети моста:", e)
-
 if __name__ == "__main__":
-    print("=== ОБЛАЧНЫЙ ИИ-ИНЖЕНЕР (GEMINI) С ИНТЕГРАЦИЕЙ XML-БИБЛИОТЕК ===")
-    print("Программа на лету вырезает справочные данные из TFlexAPI.xml под каждый ваш запрос.\n")
+    print("=== ОБЛАЧНЫЙ/ЛОКАЛЬНЫЙ ИИ-ИНЖЕНЕР С ОБРАТНОЙ СВЯЗЬЮ ===")
     
     while True:
-        prompt = input("👤 Запрос: ")
+        prompt = input("\n👤 Запрос: ")
         if prompt.lower() == 'exit': break
-        code = ask_gemini_with_embedded_xml(prompt)
-        if code:
-            print("\n💻 Сгенерированный по XML код C#:")
-            print(code)
+        
+        current_code = ""
+        error_feedback = ""
+        max_fix_attempts = 3
+        success = False
+        
+        for attempt in range(max_fix_attempts):
+            # Генерация кода (первый раз или с учетом ошибки)
+            current_code = ask_gemini_with_embedded_xml(prompt, previous_code=current_code, error_feedback=error_feedback)
+            
+            if not current_code:
+                print("❌ Не удалось сгенерировать код.")
+                break
+                
+            print(f"\n💻 Сгенерированный код C# (попытка {attempt + 1}):")
+            print(current_code)
             print("-" * 40)
-            send_to_tflex(code)
-            print("=" * 40 + "\n")
+            
+            # Отправка в T-FLEX
+            tflex_response = send_to_tflex(current_code)
+            print(f"📥 Ответ от T-FLEX: {tflex_response}")
+            
+            if tflex_response == "ОК":
+                print("✅ Макрос успешно выполнен без ошибок!")
+                success = True
+                break
+            else:
+                print(f"⚠️ Обнаружена ошибка в T-FLEX. Передаем её обратно в Gemma для исправления...")
+                error_feedback = tflex_response
+                time.sleep(2)
+                
+        if not success:
+            print("❌ Не удалось добиться успешного выполнения макроса после нескольких попыток.")
+        print("=" * 40 + "\n")
