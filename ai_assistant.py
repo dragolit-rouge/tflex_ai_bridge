@@ -134,7 +134,7 @@ def ask_gemini_with_embedded_xml(user_prompt, previous_code="", error_feedback="
 
 
 if __name__ == "__main__":
-    print("=== ИИ-ИНЖЕНЕР С МОДУЛЕМ НАКОПЛЕНИЯ ПАМЯТИ ===")
+    print("=== ИИ-ИНЖЕНЕР С ИСТОРИЕЙ ОШИБОК И ЗАЩИТОЙ ОТ ПОВТОРОВ ===")
     
     while True:
         prompt = input("\n👤 Запрос: ")
@@ -142,34 +142,82 @@ if __name__ == "__main__":
         
         current_code = ""
         error_feedback = ""
-        max_fix_attempts = 4
+        max_fix_attempts = 15
         success = False
         
-        for attempt in range(max_fix_attempts):
-            current_code = ask_gemini_with_embedded_xml(prompt, previous_code=current_code, error_feedback=error_feedback)
+        # 📜 История всех неудачных вариантов кода для текущей задачи
+        history_of_failed_codes = []
+        
+        attempt = 0
+        while attempt < max_fix_attempts:
+            attempt += 1
+            print(f"\n--- Попытка генерации #{attempt} ---")
+            
+            # Генерация с учетом истории неудачных попыток
+            current_code = ask_gemini_with_embedded_xml(
+                user_prompt=prompt, 
+                previous_code=current_code, 
+                error_feedback=error_feedback
+            )
             
             if not current_code:
                 print("❌ Не удалось сгенерировать код.")
                 break
                 
-            print(f"\n💻 Сгенерированный код C# (попытка {attempt + 1}):")
+            # 🛡️ ПРОВЕРКА ПО ВСЕЙ ИСТОРИИ: если этот код уже был на ЛЮБОЙ из прошлых попыток
+            if current_code in history_of_failed_codes:
+                print("⚠️ ВНИМАНИЕ: Модель предложила вариант кода, который ОНА УЖЕ СЕГОДНЯ ПРОБОВАВА И ОН УПАЛ!")
+                print("🔄 Прессуем модель историей ошибок, попытка не сгорает...")
+                
+                error_feedback = (
+                    "КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО повторять код из списка неудачных попыток ниже! "
+                    "Все эти варианты уже компилировались с ошибкой. Придумай совершенно другую структуру."
+                )
+                attempt -= 1  # Попытка не сгорает
+                time.sleep(1)
+                continue
+
+            # Добавляем свежий провальный вариант в копилку истории (перед отправкой в T-FLEX)
+            # Примечание: если тест пройдет успешно, мы его оттуда удалим/неважно, цикл прервется по break.
+            
+            print(f"💻 Сгенерированный код C#:")
             print(current_code)
             print("-" * 40)
             
+            # Отправка в T-FLEX
             tflex_response = send_to_tflex(current_code)
             print(f"📥 Ответ от T-FLEX: {tflex_response}")
             
             if tflex_response == "ОК":
                 print("✅ Макрос успешно выполнен без ошибок!")
-                # Записываем победу в наш отдельный модуль памяти!
                 save_working_example(prompt, current_code)
                 success = True
                 break
             else:
-                print(f"⚠️ Ошибка в T-FLEX. Передаем её обратно в Gemma...")
-                error_feedback = tflex_response
+                print(f"⚠️ Ошибка в T-FLEX. Запоминаем этот тупик в историю...")
+                if current_code not in history_of_failed_codes:
+                    history_of_failed_codes.append(current_code)
+                
+                # 🧠 ИНТЕЛЛЕКТУАЛЬНЫЙ ПЕРЕВОДЧИК ОШИБОК ДЛЯ ГЕММЫ:
+                # Если T-FLEX ругается на пропущенный using/сборку, разжевываем модели, что делать:
+                parsed_hint = ""
+                if "пропущена директива using" in tflex_response or "отсутствует в текущем контексте" in tflex_response:
+                    parsed_hint = (
+                        "\n💡 РАСШИФРОВКА ОШИБКИ ДЛЯ ТЕБЯ:\n"
+                        "Ты используете класс или метод без полного пути. Поскольку ключевое слово 'using' писать запрещено, "
+                        "ты ОБЯЗАТЕЛЬНО должна указывать полное пространство имен для всех классов T-FLEX "
+                        "(например: TFlex.Model.Model2D.CircleConstruction вместо просто CircleConstruction).\n"
+                    )
+
+                failed_history_text = "\n\n".join([f"Попытка #{i+1}:\n{code}" for i, code in enumerate(history_of_failed_codes)])
+                
+                error_feedback = (
+                    f"Ответ от T-FLEX: {tflex_response}\n"
+                    f"{parsed_hint}\n"
+                    f"СПИСОК ТВОИХ ПРОШЛЫХ ОШИБОЧНЫХ ВАРИАНТОВ (НЕ ПОВТОРЯЙ ИХ):\n{failed_history_text}"
+                )
                 time.sleep(2)
                 
         if not success:
             print("❌ Не удалось добиться успешного выполнения макроса за отведенные попытки.")
-        print("=" * 40 + "\n")
+        print("=" * 40 + "\\n")

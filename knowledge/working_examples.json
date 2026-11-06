@@ -1,0 +1,26 @@
+[
+    {
+        "prompt": "нарисуй круг радиусом 10 мм",
+        "code": "TFlex.Document document = TFlex.Application.ActiveDocument;\ndocument.BeginChanges(\"Создание окружности\");\nTFlex.Model.Model2D.FreeNode node1 = new TFlex.Model.Model2D.FreeNode(document, 0.0, 0.0);\nTFlex.Model.Model2D.FreeNode node2 = new TFlex.Model.Model2D.FreeNode(document, 10.0, 0.0);\nTFlex.Model.Model2D.CircleConstruction circle = new TFlex.Model.Model2D.CircleConstruction(document);\ncircle.SetCenterAndNode(node1, node2);\ndocument.EndChanges();\ndocuments.Redraw();"
+    },
+    {
+        "prompt": "нарисуй круг радиусом 5",
+        "code": "TFlex.Application.ActiveDocument.BeginChanges(\"Создание окружности\");\nTFlex.Model.Model2D.FreeNode node1 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 0.0, 0.0);\nTFlex.Model.Model2D.FreeNode node2 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 5.0, 0.0);\nTFlex.Model.Model2D.CircleConstruction circle = new TFlex.Model.Model2D.CircleConstruction(TFlex.Application.ActiveDocument);\ncircle.SetCenterAndNode(node1, node2);\nTFlex.Application.ActiveDocument.EndChanges();\nTFlex.Application.ActiveDocument.Redraw();"
+    },
+    {
+        "prompt": "нарисуй круг радиусом 100 мм в координатах (5, 5)",
+        "code": "TFlex.Application.ActiveDocument.BeginChanges(\"Создание окружности\");\nTFlex.Model.Model2D.FreeNode node1 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 5.0, 5.0);\nTFlex.Model.Model2D.FreeNode node2 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 105.0, 5.0);\nTFlex.Model.Model2D.CircleConstruction circle = new TFlex.Model.Model2D.CircleConstruction(TFlex.Application.ActiveDocument);\ncircle.SetCenterAndNode(node1, node2);\nTFlex.Application.ActiveDocument.EndChanges();\nTFlex.Application.ActiveDocument.Redraw();"
+    },
+    {
+        "prompt": "построй круг радиусом 30 в координатах (100, 108) с точкой центра",
+        "code": "TFlex.Application.ActiveDocument.BeginChanges(\"Создание окружности\");\nTFlex.Model.Model2D.FreeNode node1 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 100.0, 108.0);\nTFlex.Model.Model2D.FreeNode node2 = new TFlex.Model.Model2D.FreeNode(TFlex.Application.ActiveDocument, 130.0, 108.0);\nTFlex.Model.Model2D.CircleConstruction circle = new TFlex.Model.Model2D.CircleConstruction(TFlex.Application.ActiveDocument);\ncircle.SetCenterAndNode(node1, node2);\nTFlex.Application.ActiveDocument.EndChanges();\nTFlex.Application.ActiveDocument.Redraw();"
+    },
+    {
+        "prompt": "обратись к консоли",
+        "code": "TFlex.Application.Document document = TFlex.Application.ActiveDocument;\ndocument.BeginChanges(\"Создание квадрата\");\nTFlex.Model.Model2D.FreeNode p1 = new TFlex.Model.Model2D.FreeNode(document, 0.0, 0.0);\nTFlex.Model.Model2D.FreeNode p2 = new TFlex.Model.Model2D.FreeNode(document, 50.0, 0.0);\nTFlex.Model.Model2D.FreeNode p3 = new TFlex.Model.Model2D.FreeNode(document, 50.0, 50.0);\nTFlex.Model.Model2D.FreeNode p4 = new TFlex.Model.Model2D.FreeNode(document, 0.0, 50.0);\nTFlex.Model.Model2D.LineConstruction l1 = new TFlex.Model.Model2D.LineConstruction(document);\nl1.SetTwoPoints(p1, p2);\nTFlex.Model.Model2D.LineConstruction l2 = new TFlex.Model.Model2D.LineConstruction(document);\nl2.SetTwoPoints(p2, p3);\nTFlex.Model.Model2D.LineConstruction l3 = new TFlex.Model.Model2D.LineConstruction(document);\nl3.SetTwoPoints(p3, p4);\nTFlex.Model.Model2D.LineConstruction l4 = new TFlex.Model.Model2D.LineConstruction(document);\nl4.SetTwoPoints(p4, p1);\ndocument.EndChanges();\ndocument.Redraw();"
+    },
+    {
+        "prompt": "нарисуй квадрат",
+        "code": "TFlex.Application.Document document = TFlex.Application.ActiveDocument;\ndocument.BeginChanges(\"Создание квадрата\");\nTFlex.Model.Model2D.FreeNode p1 = new TFlex.Model.Model2D.FreeNode(document, 0.0, 0.0);\nTFlex.Model.Model2D.FreeNode p2 = new TFlex.Model.Model2D.FreeNode(document, 50.0, 0.0);\nTFlex.Model.Model2D.FreeNode p3 = new TFlex.Model.Model2D.FreeNode(document, 50.0, 50.0);\nTFlex.Model.Model2D.FreeNode p4 = new TFlex.Model.Model2D.FreeNode(document, 0.0, 50.0);\nTFlex.Model.Model2D.LineConstruction l1 = new TFlex.Model.Model2D.LineConstruction(document);\nl1.Init(p1, p2);\nTFlex.Model.Model2D.LineConstruction l2 = new TFlex.Model.Model2D.LineConstruction(document);\nl2.Init(p2, p3);\nTFlex.Model.Model2D.LineConstruction l3 = new TFlex.Model.Model2D.LineConstruction(document);\nl3.Init(p3, p4);\nTFlex.Model.Model2D.LineConstruction l4 = new TFlex.Model.Model2D.LineConstruction(document);\nl4.Init(p4, p1);\ndocument.EndChanges();\ndocument.Redraw();"
+    }
+]
